@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center">Sanjar's Todo List</h1>
+    <div class="card mt-3">
+        <div class="card-body">
+            <form th:action="@{/tasks}" method="post">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Task</button>
+            </form>
+        </div>
+    </div>
+    <ul class="list-group mt-3">
+        <li th:each="task : ${tasks}" class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <input type="checkbox" th:checked="${task.completed}" th:onclick="'javascript:submitForm(' + ${task.id} + ');'" class="mr-2">
+                <strong th:text="${task.title}">Task Title</strong> - <span th:text="${task.description}">Task Description</span>
+            </div>
+            <div>
+                <form th:action="@{/tasks/delete}" method="post" class="d-inline">
+                    <input type="hidden" name="id" th:value="${task.id}">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<script th:inline="javascript">
+    function submitForm(taskId) {
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", "/tasks/update");
+
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "id");
+        hiddenField.setAttribute("value", taskId);
+
+        var completedField = document.createElement("input");
+        completedField.setAttribute("type", "hidden");
+        completedField.setAttribute("name", "completed");
+        completedField.setAttribute("value", event.target.checked);
+
+        form.appendChild(hiddenField);
+        form.appendChild(completedField);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+</body>
+</html>
