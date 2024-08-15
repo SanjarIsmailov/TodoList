@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo List</title>
+    <title>Sanjar's Todo List</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .completed-task {
+            text-decoration: line-through;
+            color: gray;
+        }
+        .task-info {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
@@ -24,11 +33,37 @@
             </form>
         </div>
     </div>
+
     <ul class="list-group mt-3">
-        <li th:each="task : ${tasks}" class="list-group-item d-flex justify-content-between align-items-center">
+        <li th:each="task : ${tasks}"
+            th:if="${!task.completed}"
+            class="list-group-item d-flex justify-content-between align-items-center">
             <div>
-                <input type="checkbox" th:checked="${task.completed}" th:onclick="'javascript:submitForm(' + ${task.id} + ');'" class="mr-2">
-                <strong th:text="${task.title}">Task Title</strong> - <span th:text="${task.description}">Task Description</span>
+                <input type="checkbox" th:checked="${task.completed}"
+                       th:onclick="'javascript:submitForm(' + ${task.id} + ');'"
+                       class="mr-2">
+                <strong th:text="${task.title}"></strong>
+                <button type="button" class="btn btn-info btn-sm ml-2" onclick="toggleInfo(this)">Info</button>
+                <p class="task-info" th:text="${task.description}"></p>
+            </div>
+            <div>
+                <form th:action="@{/tasks/delete}" method="post" class="d-inline">
+                    <input type="hidden" name="id" th:value="${task.id}">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </div>
+        </li>
+
+        <li th:each="task : ${tasks}"
+            th:if="${task.completed}"
+            class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <input type="checkbox" th:checked="${task.completed}"
+                       th:onclick="'javascript:submitForm(' + ${task.id} + ');'"
+                       class="mr-2">
+                <strong th:text="${task.title}" class="completed-task"></strong>
+                <button type="button" class="btn btn-info btn-sm ml-2" onclick="toggleInfo(this)">Info</button>
+                <p class="task-info" th:text="${task.description}"></p>
             </div>
             <div>
                 <form th:action="@{/tasks/delete}" method="post" class="d-inline">
@@ -41,6 +76,15 @@
 </div>
 
 <script th:inline="javascript">
+    function toggleInfo(button) {
+        var info = button.nextElementSibling;
+        if (info.style.display === "none" || info.style.display === "") {
+            info.style.display = "block";
+        } else {
+            info.style.display = "none";
+        }
+    }
+
     function submitForm(taskId) {
         var form = document.createElement("form");
         form.setAttribute("method", "post");
